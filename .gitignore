@@ -1,0 +1,6 @@
+sim/*
+!sim/.gitkeep
+*.vcd
+*.vpd
+*.log
+.DS_Store
