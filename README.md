@@ -19,6 +19,10 @@ In **Kannada (ಮೂಲ)**, the word **"Moola"** translates to **"Origin"**, **"
 This name represents the essence of this project: building a clean-slate fundamental baseline integer processor core that serves as the root foundation for future microarchitectural explorations (such as hardware multipliers, branch predictors, cache controllers, and SoC peripherals).
 
 ---
+## 📐 Microarchitecture Overview
+
+![Moola-V Top-Level Block Diagram](docs/moola_top_level_block_diagram.png)
+
 
 ## 🎯 Target Specifications & Feature Set
 
