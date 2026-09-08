@@ -106,7 +106,7 @@ moola_riscv_core/
 
 All unit testbenches are self-checking and dump waveform traces (`.vcd`) directly into the `sim/` directory.
 
-### 1. 32-bit ALU & Branch Comparator
+1. 32-bit ALU & Branch Comparator
 ```bash
 # Compile and simulate
 iverilog -g2012 -o sim/alu_sim rtl/moola_pkg.sv rtl/moola_alu.sv tb/tb_moola_alu.sv
@@ -114,6 +114,7 @@ vvp sim/alu_sim
 
 # View waveform trace
 gtkwave sim/alu_sim.vcd &
+```
 
 2. Instruction Decoder & Immediate Generator
 ```bash
@@ -123,6 +124,7 @@ vvp sim/decode_sim
 
 # View waveform trace
 gtkwave sim/decode_sim.vcd &
+```
 
 3. General-Purpose Register File
 ```bash
@@ -132,6 +134,7 @@ vvp sim/regfile_sim
 
 # View waveform trace
 gtkwave sim/regfile_sim.vcd &
+```
 
 ---
 
