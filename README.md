@@ -59,33 +59,98 @@ This project strictly utilizes open-source, vendor-neutral EDA tools:
 
 ---
 
+### Stage Datapath Mapping & Modules
+
+| Pipeline Stage | Module Name | Primary Responsibilities |
+| :--- | :--- | :--- |
+| **Fetch (IF)** | `moola_fetch.sv` | Program counter generation (reset vector `0x8000_0000`), $+4$ sequential incrementer, branch/jump redirect mux. |
+| **IF/ID Reg** | `moola_if_id_reg.sv` | Synchronous inter-stage register supporting synchronous reset, stall, and bubble injection. |
+| **Decode (ID)** | `moola_decode.sv` | Immediate sign-extension, strict opcode-based $rs1$/$rs2$ address filtering (preventing false RAW hazard stalls), control signal decoding. |
+| **ID/EX Reg** | `moola_id_ex_reg.sv` | Control and operand propagation with synchronous flush capability on hazards. |
+| **Execute (EX)**| `moola_execute.sv` | Standalone parameterized 32-bit ALU instantiation, input operand selection ($PC, rs1, rs2, imm$, forwarded paths), branch target calculation, branch evaluation. |
+| **EX/MEM Reg**| `moola_ex_mem_reg.sv`| Stores ALU result, store data, target register address, and memory control strobes. |
+| **Memory (MEM)**| `moola_memory.sv` | Byte/half-word/word sign-extension, byte-enable strobe generation (`dmem_wstrb[3:0]`). |
+| **MEM/WB Reg**| `moola_mem_wb_reg.sv`| Latches memory read data, ALU results, destination register address, and write-enable signals. |
+| **Write-Back (WB)**| `moola_regfile.sv` | $32 \times 32$-bit dual-read single-write register file ($x0$ hardwired to zero) with internal write-through logic. |
+
+---
+
 ## 📁 Repository Structure
 
 ```text
 moola_riscv_core/
-├── rtl/        # Synthesizable SystemVerilog RTL modules (To be populated iteratively)
-├── tb/         # Self-checking testbenches & verification environments
-├── software/   # Bare-metal assembly & C test programs
-├── sim/        # Simulation scripts, executables, and waveform outputs
-├── docs/       # Microarchitectural specs, block diagrams, and timing charts
-├── .gitignore  # Exclusion list for simulation artifacts
-└── README.md   # Project documentation & progress tracker
+├── docs/
+│   └── moola_top_level_block_diagram.png # 5-stage datapath architecture diagram
+├── rtl/
+│   ├── moola_pkg.sv                      # Global typedefs, opcodes, and enums
+│   ├── moola_alu.sv                      # 32-bit ALU and branch comparator
+│   ├── moola_decode.sv                   # Instruction decoder & immediate generator
+│   └── moola_regfile.sv                  # 32x32-bit dual-read register file
+├── sim/
+│   ├── alu_sim                           # Compiled simulation binaries
+│   ├── alu_sim.vcd                       # VCD waveform traces
+│   ├── decode_sim
+│   ├── decode_sim.vcd
+│   ├── regfile_sim
+│   └── regfile_sim.vcd
+├── tb/
+│   ├── tb_moola_alu.sv                   # ALU testbench
+│   ├── tb_moola_decode.sv                # Decoder testbench
+│   └── tb_moola_regfile.sv               # Register file testbench
+├── software/                             # Bare-metal test programs (assembly & C)
+└── README.md                             # Project documentation & progress tracker
 
+``` 
+
+## ⚡ Simulation & Waveform Debug
+
+All unit testbenches are self-checking and dump waveform traces (`.vcd`) directly into the `sim/` directory.
+
+### 1. 32-bit ALU & Branch Comparator
+```bash
+# Compile and simulate
+iverilog -g2012 -o sim/alu_sim rtl/moola_pkg.sv rtl/moola_alu.sv tb/tb_moola_alu.sv
+vvp sim/alu_sim
+
+# View waveform trace
+gtkwave sim/alu_sim.vcd &
+
+2. Instruction Decoder & Immediate Generator
+```bash
+# Compile and simulate
+iverilog -g2012 -o sim/decode_sim rtl/moola_pkg.sv rtl/moola_decode.sv tb/tb_moola_decode.sv
+vvp sim/decode_sim
+
+# View waveform trace
+gtkwave sim/decode_sim.vcd &
+
+3. General-Purpose Register File
+```bash
+# Compile and simulate
+iverilog -g2012 -o sim/regfile_sim rtl/moola_pkg.sv rtl/moola_regfile.sv tb/tb_moola_regfile.sv
+vvp sim/regfile_sim
+
+# View waveform trace
+gtkwave sim/regfile_sim.vcd &
+
+---
 
 🚀 Development Roadmap & Learning Journey
-[x] Milestone 0: Architecture Specification & Project Kickoff
+[x] Milestone 0: Architecture Specification & Microarchitecture Blueprint
 
-[ ] Milestone 1: ALU, Register File, and Instruction Decoder Modules
+[x] Milestone 1: Memory Subsystem Development (moola_dp_sram)
 
-[ ] Milestone 2: 5-Stage Pipeline Registers & Datapath Assembly
+[x] Milestone 2: Core Stage Primitives (moola_pkg, moola_alu, moola_decode, moola_regfile)
 
-[ ] Milestone 3: Hazard Detection & Operand Forwarding Bypass Networks
+[ ] Milestone 3: 5-Stage Pipeline Registers & Datapath Assembly (IF/ID, ID/EX, EX/MEM, MEM/WB)
 
-[ ] Milestone 4: True Dual-Port SRAM Memory Subsystem Integration
+[ ] Milestone 4: Hazard Detection & Forwarding Bypass Networks
 
-[ ] Milestone 5: Official RISC-V Architectural Compliance Test Suite (riscv-tests)
+[ ] Milestone 5: SRAM Memory Subsystem Integration & End-to-End Assembly Execution
 
-[ ] Milestone 6: Co-Simulation with Spike ISS via DPI-C
+[ ] Milestone 6: Official RISC-V Architectural Compliance Test Suite (riscv-tests)
+
+[ ] Milestone 7: SkyWater 130nm ASIC Synthesis & Timing Closure Flow
 
 
 🤝 Community & Feedback
