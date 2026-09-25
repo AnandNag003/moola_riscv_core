@@ -28,11 +28,7 @@ module tb_moola_alu;
     .alu_op     (alu_op),
     .alu_result (alu_result)
   );
-  
-  initial begin
-        $dumpfile("sim/alu_sim.vcd");
-        $dumpvars(0, tb_moola_alu);
-    end
+
   // -------------------------------------------------------------------------
   // Self-Checking Verification Task
   // -------------------------------------------------------------------------

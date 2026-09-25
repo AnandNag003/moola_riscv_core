@@ -30,6 +30,7 @@ module moola_decode (
   output moola_pkg::alu_src_a_e   dec_alu_src_a,
   output moola_pkg::alu_src_b_e   dec_alu_src_b,
   output moola_pkg::branch_type_e dec_branch_type,
+  output moola_pkg::mem_size_e    dec_mem_size,
   output logic                    dec_mem_read,
   output logic                    dec_mem_write,
   output logic                    dec_reg_write,
@@ -151,6 +152,7 @@ module moola_decode (
     dec_alu_src_a   = ALU_SRC_A_RS1;
     dec_alu_src_b   = ALU_SRC_B_RS2;
     dec_branch_type = BR_NONE;
+    dec_mem_size    = MEM_WORD;
     dec_mem_read    = 1'b0;
     dec_mem_write   = 1'b0;
     dec_reg_write   = 1'b0;
@@ -209,6 +211,7 @@ module moola_decode (
         dec_mem_read  = 1'b1;
         dec_reg_write = (rd_valid_addr != 5'd0);
         dec_wb_sel    = WB_SEL_MEM;
+        dec_mem_size  = mem_size_e'(funct3);
       end
 
       OPCODE_STORE: begin
@@ -217,6 +220,7 @@ module moola_decode (
         dec_alu_op    = ALU_ADD;
         dec_mem_write = 1'b1;
         dec_reg_write = 1'b0;
+        dec_mem_size  = mem_size_e'(funct3);
       end
 
       OPCODE_BRANCH: begin
@@ -227,8 +231,6 @@ module moola_decode (
         case (funct3)
           3'b000: dec_branch_type = BR_BEQ;
           3'b001: dec_branch_type = BR_BNE;
-          3'b100: dec_branch_type = BR_BLT;
-          3'b101: dec_branch_type = BR_BGE;
           3'b100: dec_branch_type = BR_BLT;
           3'b101: dec_branch_type = BR_BGE;
           3'b110: dec_branch_type = BR_BLTU;

@@ -24,7 +24,7 @@ module moola_alu
       ALU_SUB:  alu_result = alu_in_a - alu_in_b;
       ALU_SLL:  alu_result = alu_in_a << shamt;
       ALU_SLT:  alu_result = ($signed(alu_in_a) < $signed(alu_in_b)) ? 32'd1 : 32'd0;
-      ALU_SLTU: alu_result = (alu_in_a < alu_in_b) ? 32'd1 : 32'd0;
+      ALU_SLTU: alu_result = ($unsigned(alu_in_a) < $unsigned(alu_in_b)) ? 32'd1 : 32'd0;
       ALU_XOR:  alu_result = alu_in_a ^ alu_in_b;
       ALU_SRL:  alu_result = alu_in_a >> shamt;
       ALU_SRA:  alu_result = $signed(alu_in_a) >>> shamt;

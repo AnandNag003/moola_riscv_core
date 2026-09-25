@@ -36,11 +36,6 @@ module tb_moola_regfile;
     .rd_data   (rd_data)
   );
 
-  initial begin
-        $dumpfile("sim/regfile_sim.vcd");
-        $dumpvars(0, tb_moola_regfile);
-    end 
-
   // Clock Generation (100 MHz)
   always #5 clk = ~clk;
 

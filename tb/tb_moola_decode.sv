@@ -10,30 +10,14 @@ module tb_moola_decode;
   import moola_pkg::*;
 
   // DUT Inputs
-  logic [31:0] id_pc;
-  logic [31:0] id_pc_plus_4;
-  logic [31:0] id_inst;
-  logic [31:0] rf_rs1_data;
-  logic [31:0] rf_rs2_data;
+  if_id_payload_t if_id_in;
+  logic [31:0]    rf_rs1_data;
+  logic [31:0]    rf_rs2_data;
 
-  // DUT Outputs (Flat signals - Icarus Verilog safe)
-  logic [4:0]              rf_rs1_addr;
-  logic [4:0]              rf_rs2_addr;
-  logic [31:0]             dec_pc;
-  logic [31:0]             dec_rs1_data;
-  logic [31:0]             dec_rs2_data;
-  logic [4:0]              dec_rs1_addr;
-  logic [4:0]              dec_rs2_addr;
-  logic [4:0]              dec_rd_addr;
-  logic [31:0]             dec_imm;
-  moola_pkg::alu_op_e      dec_alu_op;
-  moola_pkg::alu_src_a_e   dec_alu_src_a;
-  moola_pkg::alu_src_b_e   dec_alu_src_b;
-  moola_pkg::branch_type_e dec_branch_type;
-  logic                    dec_mem_read;
-  logic                    dec_mem_write;
-  logic                    dec_reg_write;
-  moola_pkg::wb_sel_e      dec_wb_sel;
+  // DUT Outputs
+  logic [4:0]     rf_rs1_addr;
+  logic [4:0]     rf_rs2_addr;
+  id_ex_payload_t id_ex_payload_d;
 
   // Tracking Counters
   int test_count  = 0;
@@ -43,34 +27,13 @@ module tb_moola_decode;
   // DUT Instantiation
   // -------------------------------------------------------------------------
   moola_decode dut (
-    .id_pc           (id_pc),
-    .id_pc_plus_4    (id_pc_plus_4),
-    .id_inst         (id_inst),
+    .if_id_in        (if_id_in),
     .rf_rs1_data     (rf_rs1_data),
     .rf_rs2_data     (rf_rs2_data),
     .rf_rs1_addr     (rf_rs1_addr),
     .rf_rs2_addr     (rf_rs2_addr),
-    .dec_pc          (dec_pc),
-    .dec_rs1_data    (dec_rs1_data),
-    .dec_rs2_data    (dec_rs2_data),
-    .dec_rs1_addr    (dec_rs1_addr),
-    .dec_rs2_addr    (dec_rs2_addr),
-    .dec_rd_addr     (dec_rd_addr),
-    .dec_imm         (dec_imm),
-    .dec_alu_op      (dec_alu_op),
-    .dec_alu_src_a   (dec_alu_src_a),
-    .dec_alu_src_b   (dec_alu_src_b),
-    .dec_branch_type (dec_branch_type),
-    .dec_mem_read    (dec_mem_read),
-    .dec_mem_write   (dec_mem_write),
-    .dec_reg_write   (dec_reg_write),
-    .dec_wb_sel      (dec_wb_sel)
+    .id_ex_payload_d (id_ex_payload_d)
   );
-
-  initial begin
-    $dumpfile("sim/decode_sim.vcd");
-    $dumpvars(0, tb_moola_decode);
-  end
 
   // -------------------------------------------------------------------------
   // Generic Check Task
@@ -90,33 +53,33 @@ module tb_moola_decode;
     input logic        exp_mem_write,
     input string       test_name
   );
-    id_inst      = inst;
-    id_pc        = pc;
-    id_pc_plus_4 = pc + 4;
-    rf_rs1_data  = 32'hAAAA_AAAA;
-    rf_rs2_data  = 32'h5555_5555;
+    if_id_in.inst      = inst;
+    if_id_in.pc        = pc;
+    if_id_in.pc_plus_4 = pc + 4;
+    rf_rs1_data        = 32'hAAAA_AAAA;
+    rf_rs2_data        = 32'h5555_5555;
     #1; // Allow combinational logic to settle
 
     test_count++;
 
     if ((rf_rs1_addr !== exp_rs1) ||
         (rf_rs2_addr !== exp_rs2) ||
-        (dec_rd_addr !== exp_rd) ||
-        (dec_imm !== exp_imm) ||
-        (dec_alu_op !== exp_alu_op) ||
-        (dec_alu_src_a !== exp_src_a) ||
-        (dec_alu_src_b !== exp_src_b) ||
-        (dec_wb_sel !== exp_wb_sel) ||
-        (dec_mem_read !== exp_mem_read) ||
-        (dec_mem_write !== exp_mem_write)) begin
+        (id_ex_payload_d.rd_addr !== exp_rd) ||
+        (id_ex_payload_d.imm !== exp_imm) ||
+        (id_ex_payload_d.alu_op !== exp_alu_op) ||
+        (id_ex_payload_d.alu_src_a !== exp_src_a) ||
+        (id_ex_payload_d.alu_src_b !== exp_src_b) ||
+        (id_ex_payload_d.wb_sel !== exp_wb_sel) ||
+        (id_ex_payload_d.mem_read !== exp_mem_read) ||
+        (id_ex_payload_d.mem_write !== exp_mem_write)) begin
       $error("[FAIL] Test %02d: %s", test_count, test_name);
       $display("\tExpected: rs1=%0d, rs2=%0d, rd=%0d, imm=0x%08h, mem_r=%b, mem_w=%b",
                exp_rs1, exp_rs2, exp_rd, exp_imm, exp_mem_read, exp_mem_write);
       $display("\tGot:      rs1=%0d, rs2=%0d, rd=%0d, imm=0x%08h, mem_r=%b, mem_w=%b",
-               rf_rs1_addr, rf_rs2_addr, dec_rd_addr, dec_imm, dec_mem_read, dec_mem_write);
+               rf_rs1_addr, rf_rs2_addr, id_ex_payload_d.rd_addr, id_ex_payload_d.imm, id_ex_payload_d.mem_read, id_ex_payload_d.mem_write);
       error_count++;
     end else begin
-      $display("[PASS] Test %02d: %-38s (Imm: 0x%08h, rd: x%02d)", test_count, test_name, dec_imm, dec_rd_addr);
+      $display("[PASS] Test %02d: %-38s (Imm: 0x%08h, rd: x%02d)", test_count, test_name, id_ex_payload_d.imm, id_ex_payload_d.rd_addr);
     end
   endtask
 

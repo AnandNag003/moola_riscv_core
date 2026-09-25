@@ -57,10 +57,13 @@ package moola_pkg;
     BR_NONE = 3'b010
   } branch_type_e;
 
-  typedef enum logic [1:0] {
-    MEM_BYTE     = 2'b00,
-    MEM_HALFWORD = 2'b01,
-    MEM_WORD     = 2'b10
+  // Direct mapping to RISC-V funct3[2:0] for Load/Store instructions
+  typedef enum logic [2:0] {
+    MEM_BYTE     = 3'b000, // LB  / SB
+    MEM_HALFWORD = 3'b001, // LH  / SH
+    MEM_WORD     = 3'b010, // LW  / SW
+    MEM_BYTE_U   = 3'b100, // LBU
+    MEM_HALF_U   = 3'b101  // LHU
   } mem_size_e;
 
   typedef enum logic [1:0] {
@@ -105,6 +108,8 @@ package moola_pkg;
     branch_type_e  branch_type;
     logic          mem_read;
     logic          mem_write;
+    logic          reg_write;
+    mem_size_e     mem_size;
     wb_sel_e       wb_sel;
   } id_ex_payload_t;
 
@@ -116,6 +121,7 @@ package moola_pkg;
     logic [4:0]    rd_addr;
     logic          mem_read;
     logic          mem_write;
+    logic          reg_write;
     mem_size_e     mem_size;
     wb_sel_e       wb_sel;
   } ex_mem_payload_t;
