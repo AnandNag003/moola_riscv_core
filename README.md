@@ -199,19 +199,19 @@ gtkwave sim/tb_moola_soc_top.vcd &
 🚀 Development Roadmap & Learning Journey
 [x] Milestone 0: Architecture Specification & Microarchitecture Blueprint
 
-[x] Milestone 1: Memory Subsystem Development (moola_dp_sram)
+[x] Milestone 1: Memory Subsystem Development (moola_dp_sram.sv)
 
 [x] Milestone 2: Core Stage Primitives (moola_pkg, moola_alu, moola_decode, moola_regfile)
 
-[ ] Milestone 3: 5-Stage Pipeline Registers & Datapath Assembly (IF/ID, ID/EX, EX/MEM, MEM/WB)
+[x] Milestone 3: 5-Stage Pipeline Registers & Datapath Assembly (moola_core.sv)
 
-[ ] Milestone 4: Hazard Detection & Forwarding Bypass Networks
+[x] Milestone 4: Hazard Detection & RAW Forwarding Bypass Networks (moola_hazard_unit, moola_forwarding_unit)
 
-[ ] Milestone 5: SRAM Memory Subsystem Integration & End-to-End Assembly Execution
+[x] Milestone 5: Synchronous Dual-Port SRAM SoC Integration (moola_soc_top.sv)
 
-[ ] Milestone 6: Official RISC-V Architectural Compliance Test Suite (riscv-tests)
+[ ] Milestone 6: Cocotb Python Co-Simulation Testbench & RISCOF Architectural Compliance Suite
 
-[ ] Milestone 7: SkyWater 130nm ASIC Synthesis & Timing Closure Flow
+[ ] Milestone 7: SkyWater 130nm ASIC Synthesis & Timing Closure Flow (OpenROAD / Tiny Tapeout)
 
 
 🤝 Community & Feedback
